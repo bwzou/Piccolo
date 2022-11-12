@@ -8,44 +8,59 @@ layout(input_attachment_index = 0, set = 0, binding = 0) uniform highp subpassIn
 
 layout(set = 0, binding = 1) uniform sampler2D color_grading_lut_texture_sampler;
 
+#ifdef DEBUG
+layout(location = 0) in highp vec2 in_uv;
+#endif
+
 layout(location = 0) out highp vec4 out_color;
+
+highp vec2 lut_uv(highp float red, highp float green, highp float blue_slice, highp float slice_size) {
+    // u = (u_Red + u_Blue) / size, v = green
+    // `min` fix special case for color.b = 1.0F
+    return  vec2((red + min(blue_slice, slice_size - 1.0f)) / slice_size, green);
+}
+
+highp float get_slice_size() {
+    highp ivec2 lut_tex_size = textureSize(color_grading_lut_texture_sampler, 0);
+    return float(lut_tex_size.x / lut_tex_size.y);
+    // return 16.0F  // can be hard cored as 16 for color_grading_lut_01.png
+}
+
+highp vec4 get_lut_color(highp vec4 color, highp float slice_size) {
+    // scale blue by slice_size, and get integral and fractional part
+    // example: with a sampler of 16 slices
+    // 5.6(scaled blue) => slice 5, slice_weight 0.6
+    highp float slice;
+    // max blue = 15.0, then rgb (0.6, g, 1.0) will be sampled from (15.6/16.0, g)
+    highp float slice_weight = modf(color.b * (slice_size - 1.0F), slice);
+
+    highp vec4 color_left = textureLod(color_grading_lut_texture_sampler, lut_uv(color.r, color.g, slice, slice_size), 0.0);
+    highp vec4 color_right = textureLod(color_grading_lut_texture_sampler, lut_uv(color.r, color.g, slice + 1.0F, slice_size), 0.0);
+
+    return vec4(
+        // interpolate 1D using weight as fractional part of scaled blue
+        mix(color_left, color_right, slice_weight).rgb,
+        color.a
+    );
+}
 
 void main()
 {
-    highp ivec2 lut_tex_size = textureSize(color_grading_lut_texture_sampler, 0);
-    highp float _COLORS      = float(lut_tex_size.y);
-
     highp vec4 color       = subpassLoad(in_color).rgba;
+    highp float slice_size = get_slice_size();
 
-    highp vec2 lut_size = vec2(lut_tex_size.x, lut_tex_size.y);
-
-    // 求2d贴图方格的数量
-    highp float block_num = lut_size.x / lut_size.y;
-
-    // 求出b值所在位置
-    highp float left_block_index = floor(block_num * color.b);
-    highp float right_block_index = ceil(block_num * color.b);
-
-    // 计算b值左右对应像素的u值并归一化
-    highp float u_l = (left_block_index * lut_size.y + lut_size.y * color.r) / lut_size.x;
-    highp float u_r = (right_block_index * lut_size.y + lut_size.y * color.r) / lut_size.x;
-
-    // 求出v值
-    highp float lut_coor_y = color.g;
-
-    // 计算b值左右对应像素的位置
-    highp vec2 left_lut_coord = vec2(u_l, lut_coor_y);
-    highp vec2 right_lut_coord = vec2(u_r, lut_coor_y);
-
-    // 计算b值左右对应像素的颜色值
-    highp vec4 left_lut_color = texture(color_grading_lut_texture_sampler, left_lut_coord);
-    highp vec4 right_lut_color = texture(color_grading_lut_texture_sampler, right_lut_coord);
-    
-    // 获取权重
-    // fract(x) = x - floor(x)
-    highp float weight = fract(color.b * lut_size.y);
-
-    // 对采样结果进行插值
-    // mix(x, y, level) = x * (1 - level) + y * level;
-    out_color = mix(left_lut_color, right_lut_color, weight);
+#ifdef DEBUG
+#ifdef VERTIAL_SPLIT
+    if (in_uv.x > 0.5) {
+#else
+    if (in_uv.x > in_uv.y) {
+#endif
+        out_color = color;
+    } else {
+#endif
+    // shader out_color as following:
+    out_color = get_lut_color(color, slice_size);
+#ifdef DEBUG
+    }
+#endif
 }

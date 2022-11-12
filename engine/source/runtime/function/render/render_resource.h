@@ -15,6 +15,7 @@
 #include <vector>
 #include <cmath>
 
+// 各种资源
 namespace Piccolo
 {
     class RHI;

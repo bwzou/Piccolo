@@ -18,6 +18,7 @@ namespace Piccolo
         std::shared_ptr<WindowSystem> window_system;
     };
     
+    // Render hardware interface 渲染硬件层接口，本人理解RHI是一套硬件无关，平台无关的图形渲染API.
     class RHI
     {
     public:

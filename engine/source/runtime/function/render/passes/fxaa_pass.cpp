@@ -34,6 +34,7 @@ namespace Piccolo
         updateAfterFramebufferRecreate(_init_info->input_attachment);
     }
 
+    // VkDescriptorSetLayout它描述了使用的成员变量的变量类型
     void FXAAPass::setupDescriptorSetLayout()
     {
         m_descriptor_infos.resize(1);

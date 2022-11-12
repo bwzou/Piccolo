@@ -55,10 +55,10 @@ namespace Piccolo
     public:
         struct FrameBufferAttachment
         {
-            RHIImage*        image;
-            RHIDeviceMemory* mem;
-            RHIImageView*    view;
-            RHIFormat       format;
+            RHIImage*        image;  // 图像对象
+            RHIDeviceMemory* mem;  // 内存分配需要调用vkAllocateMemory函数，返回一个VkDeviceMemory句柄
+            RHIImageView*    view;  // 视图，不能直接访问图像数据，需要通过VkImageView来访问图像数据
+            RHIFormat       format; 
         };
 
         struct Framebuffer
@@ -71,7 +71,7 @@ namespace Piccolo
             std::vector<FrameBufferAttachment> attachments;
         };
 
-        struct Descriptor
+        struct Descriptor  // Vulkan的基本绑定单位是描述符
         {
             RHIDescriptorSetLayout* layout;
             RHIDescriptorSet*       descriptor_set;

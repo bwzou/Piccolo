@@ -244,6 +244,7 @@ namespace Piccolo
             throw std::runtime_error("create mesh point light shadow pipeline layout");
         }
 
+        // 将着色器代码传递给渲染管线之前，我们必须将其封装到VkShaderModule对象中
         RHIShader* vert_shader_module =
             m_rhi->createShaderModule(MESH_POINT_LIGHT_SHADOW_VERT);
         RHIShader* geom_shader_module =
@@ -251,6 +252,7 @@ namespace Piccolo
         RHIShader* frag_shader_module =
             m_rhi->createShaderModule(MESH_POINT_LIGHT_SHADOW_FRAG);
 
+        // 将着色器模块分配到管线中的顶点或者片段着色器阶段
         RHIPipelineShaderStageCreateInfo vert_pipeline_shader_stage_create_info {};
         vert_pipeline_shader_stage_create_info.sType  = RHI_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         vert_pipeline_shader_stage_create_info.stage  = RHI_SHADER_STAGE_VERTEX_BIT;

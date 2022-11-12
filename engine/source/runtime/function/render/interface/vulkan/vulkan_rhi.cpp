@@ -1484,7 +1484,7 @@ namespace Piccolo
 
         pPipelineLayout = new VulkanPipelineLayout();
         VkPipelineLayout vk_pipeline_layout;
-        VkResult result = vkCreatePipelineLayout(m_device, &create_info, nullptr, &vk_pipeline_layout);
+        VkResult result = vkCreatePipelineLayout(m_device, &create_info, nullptr, &vk_pipeline_layout); // create VkPipelineLayout
         ((VulkanPipelineLayout*)pPipelineLayout)->setResource(vk_pipeline_layout);
         
         if (result == VK_SUCCESS)
@@ -3005,7 +3005,8 @@ namespace Piccolo
         descriptorset_allocate_info.pSetLayouts = vk_descriptor_set_layout_list.data();
 
         VkDescriptorSet vk_descriptor_set;
-        pDescriptorSets = new VulkanDescriptorSet;
+        // VkDescriptorSetLayout看作是一个结构体类型，它描述了使用的成员变量的变量类型
+        pDescriptorSets = new VulkanDescriptorSet();
         VkResult result = vkAllocateDescriptorSets(m_device, &descriptorset_allocate_info, &vk_descriptor_set);
         ((VulkanDescriptorSet*)pDescriptorSets)->setResource(vk_descriptor_set);
 

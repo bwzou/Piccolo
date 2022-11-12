@@ -204,6 +204,7 @@ namespace Piccolo
         }
     }
 
+    // 窗口大小改变时，会调用该方法进行同步
     void ColorGradingPass::updateAfterFramebufferRecreate(RHIImageView* input_attachment)
     {
         RHIDescriptorImageInfo post_process_per_frame_input_attachment_info = {};
@@ -248,6 +249,7 @@ namespace Piccolo
                                     NULL);
     }
 
+    // 进行绘制时，会绑定好先前初始化好的 Pipeline 以指导 GPU 进行渲染运算
     void ColorGradingPass::draw()
     {
         float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };

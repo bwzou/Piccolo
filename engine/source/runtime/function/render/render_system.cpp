@@ -46,7 +46,7 @@ namespace Piccolo
         const std::string& global_rendering_res_url = config_manager->getGlobalRenderingResUrl();
         asset_manager->loadAsset(global_rendering_res_url, global_rendering_res);
 
-        // upload ibl, color grading textures
+        // upload ibl(基于图像的照明), color grading textures
         LevelResourceDesc level_resource_desc;
         level_resource_desc.m_ibl_resource_desc.m_skybox_irradiance_map = global_rendering_res.m_skybox_irradiance_map;
         level_resource_desc.m_ibl_resource_desc.m_skybox_specular_map   = global_rendering_res.m_skybox_specular_map;
